@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--stylesheet imports-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <link href="https://fastcdn.org/Leaflet.awesome-markers/2.0.1/leaflet.awesome-markers.css" rel="stylesheet">
+  </head>
+  <body>
+    <!--left panel-->
+    <div style="position: absolute; left: 0px; width: 400px; top: 0; bottom: 0;">
+      <button id="button-next">Next</button>
+      <button id="button-previous">previous</button>
+
+    </div>
+    <!--map-->
+    <div id="map" style="background-color: #777777; position: absolute; right: 0; left: 400px; top: 0; bottom: 0;"></div>
+
+    <!--javascript imports-->
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="js/underscore.js"></script>
+    <script src="https://fastcdn.org/Leaflet.awesome-markers/2.0.1/leaflet.awesome-markers.min.js"></script>
+    <script src="js/main_2.js"></script>
+
+    <!--The code below actually generates the map. Any code you would like to add
+    	should be between the "<script></script>" tags.-->
+
+    <script>
+      var map = L.map('map', {
+        center: [39.954089, -75.187502],
+        zoom: 14
+      });
+      var Stamen_Terrain = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+	      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      	subdomains: 'abcd',
+      	minZoom: 0,
+      	maxZoom: 20,
+      	ext: 'png'
+      }).addTo(map);
+
+    </script>
+
+  </body>
+</html>
