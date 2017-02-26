@@ -2,11 +2,48 @@
 
 $('#map').css('background-color', "#FEEBE2");
 
+  var map = L.map('map', {
+    center: [39.986354, -75.097443],
+    zoom: 11
+  });
+  var Stamen_Terrain = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: 'abcd',
+    minZoom: 0,
+    maxZoom: 20,
+    ext: 'png'
+  }).addTo(map);
+
+// TRYING TO ADD THE OUTLINES OF POLICE SERVICE AREAS USING .GeoJSON FROM OPENDATAPHILLY
+// NO SUCCESS SO FAR
+
+var phlPoliceAreas = "https://services.arcgis.com/fLeGjb7u4uXqeF9q/arcgis/rest/services/Boundaries_District/FeatureServer/0?f=pjson";
+var featureGroup;
+var tempData;
+
+$(document).ready(function() {
+  $.ajax(phlPoliceAreas).done(function(data) {
+    var parsedData = JSON.parse(data);
+    tempData = parsedData;
+    featureGroup = L.geoJson(parsedData, {
+      style: null,
+      filter: null
+    }).addTo(map);
+    // quite similar to _.each
+    featureGroup.eachLayer(eachFeatureFunction);
+  });
+});
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+/////////////   HERE IS WHERE I BRING DOWN THE CRIME DATA THROUGH AN API   /////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
 $.ajax({
     url: "https://data.phila.gov/resource/sspu-uyfa.json",
     type: "GET",
     data: {
-      // "$limit" : 200,                                                    // This line breaks the ajax call when the query is happening so I commented it out
       "$query" : "SELECT * WHERE shape is not null",                        // This automatically gets rid of any data without a shape and coordinates
       "$$app_token" : "nZtsnVJLQrElo9WkVcHn005wJ"
     }
@@ -44,112 +81,159 @@ $.ajax({
           // Vandalism/Criminal Mischief - Public Space/Disorder
           // Weapon Violations
 
-    var theftFilter = _.filter(crimeData, function(crimeObject){                    // This creates a filter for just Thefts in the dataset
-          return(crimeObject.text_general_code == "Thefts");
-      });
-    console.log(theftFilter);
-
-    var allYears = _.map(theftFilter, function(item){                             // This will pull out all the dates of all the thefts so we can see them
-      return item.dispatch_date;
+    // This will pull the year of the crime out of the dispatch date and create a new key for it
+    // This will allow for more specific filtering/representation later
+    _.each(crimeData, function (crimeEvent){
+      crimeEvent.year = crimeEvent.dispatch_date.substring(0,4);
     });
-    // console.log(_.groupBy(allYears));
-
-    // This is the result of the console.log of allYears:
-          // 2006
-          // 2007
-          // 2009
-          // 2010
-          // 2011
-          // 2012
-          // 2013
-          // 2014
-          // 2015
-          // 2016
+    // console.log(crimeData);
 
 
+////////////////////////////////////////////////////////////////////////////////////////
+//////// HERE IS WHERE IM GONNA SET UP VARIOUS FILTERS FOR POINTS I WANT TO MAP ////////
+////////////////////////////////////////////////////////////////////////////////////////
 
+    var crimeFilter = _.filter(crimeData, function(crimeObject){
+          return(crimeObject.text_general_code == "Thefts" || crimeObject.text_general_code == "Fraud");
+    });
 
+    var theftEvents = _.filter(crimeData, function(crimeObject){
+          return(crimeObject.text_general_code == "Thefts");
+    });
 
+    var fraudEvents = _.filter(crimeData, function(crimeObject){
+          return(crimeObject.text_general_code == "Fraud");
+    });
 
+    var selectCrimes = _.uniq(_.pluck(crimeFilter, 'text_general_code'));            // Aaron suggested I use this code to check my filtered set and make sure it only contains the two types of crimes I want
+    // console.log(selectCrimes);                                                    // This is just a different way to do what I did above to get all the text_general_code options
 
+    var selectYears = _.uniq(_.pluck(crimeFilter, 'year'));                         // Adapted Aaron's code to look at the years for the data, using the key I created earlier
+    console.log(selectYears);
 
-});
+    var fraud2016 = _.filter(fraudEvents, function(fraudObject){
+          return(fraudObject.year == "2016");
+    });
 
-var crimeData;
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var state = {
-  count: 1,
-  data: undefined,
-};
-
-var nextSlide = function () {
-  if (state.count < 5) {
-    state.count = (state.count + 1);
-    // console.log("Slide" + " " + state.count);
-  }
-  else {
-    console.log("You are on the last slide!");
-  }
-};
-
-var prevSlide = function() {
-  if (state.count > 1) {
-    state.count = (state.count - 1);
-    // console.log("Slide" + " " + state.count);
-  }
-  else {
-    console.log("You are on the first slide!");
-  }
-};
-
-var saySlideName = function() {
-  var slideDataInfo = state.count;
-  console.log("You are on slide" + " " + [slideDataInfo]);
-};
-
-var changeColor = function () {
-  if (state.count === 0) {
-    return "#FEEBE2";
-  } else if (state.count === 1) {
-    return "#FBB4B9";
-  } else  if (state.count === 2) {
-    return "#F768A1";
-  } else  if (state.count === 3) {
-    return "#C51B8A";
-  } else  if (state.count === 4) {
-      return "#7A0177";
-  } else  if (state.count === 5) {
-    return "#B30000";
-}
-};
-
-var setStyle = function(slideObject) {
-    $('#map').css('background-color', changeColor());
-};
+    var theft2016 = _.filter(theftEvents, function(theftObject){
+          return(theftObject.year == "2016");
+    });
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////
+/////////////  HERE IS WHERE I CREATE MARKERS AND PLOT THEM ON EACH SLIDE  /////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
-// This connects the next button click to your functions
-// will set the style based on the current state
-$("#button-next").click(function(event) {
-  nextSlide();
-  saySlideName();
-  setStyle(nextSlide);
-  // console.log(crimeData);
-});
+    // console.log(crimeFilter[0].shape.coordinates[0]);                             // This is the second coordinate for each crimeObject
+    // console.log(crimeFilter[0].shape.coordinates[1]);                             // This is the first coordinate for each crimeObject
+    var makeMarkers =  function (crimeFilter) {
+        var markersTemp = _.map(crimeFilter, function(crimeObject) {
+          return L.marker([crimeObject.shape.coordinates[1], crimeObject.shape.coordinates[0]])
+          .bindPopup(crimeObject.text_general_code + " reported at " + crimeObject.location_block + " on " + crimeObject.dispatch_date);
+        }
+      );
+      return markersTemp;
+    };
 
-// This connects the previous button click to your functions
-// will set the style based on the current state
-$("#button-previous").click(function(event) {
-  prevSlide();
-  saySlideName();
-  setStyle(nextSlide);
+    var plotMarkers = function(markersAll) {
+        _.each(markersAll, function (individualMarker) {
+          individualMarker.addTo(map);
+        }
+        );
+    };
+
+    var allMarkers = makeMarkers(crimeFilter);
+    var theftMarkers = makeMarkers(theftEvents);
+    var theftSelect = makeMarkers(theft2016);
+    var fraudMarkers = makeMarkers(fraudEvents);
+    var fraudSelect = makeMarkers(fraud2016);
+
+    // plotMarkers(allMarkers);
+
+    var removeMarkers = function(markersAll) {
+        _.each(markersAll, function (individualMarker){
+          map.removeLayer(individualMarker);
+        });
+    };
+
+    var changeMap = function () {
+      if (state.count === 0) {
+            removeMarkers(allMarkers);
+      } else if (state.count === 1) {
+                removeMarkers(allMarkers);
+                removeMarkers(theftMarkers);
+            plotMarkers(allMarkers);
+      } else  if (state.count === 2) {
+                removeMarkers(allMarkers);
+                removeMarkers(theftMarkers);
+                removeMarkers(fraudMarkers);
+            plotMarkers(theftMarkers);
+      } else  if (state.count === 3) {
+                removeMarkers(theftMarkers);
+                removeMarkers(fraudMarkers);
+            plotMarkers(theftSelect);
+      } else  if (state.count === 4) {
+                removeMarkers(theftMarkers);
+                removeMarkers(fraudMarkers);
+            plotMarkers(fraudMarkers);
+      } else  if (state.count === 5) {
+                removeMarkers(allMarkers);
+                removeMarkers(theftMarkers);
+                removeMarkers(fraudMarkers);
+            plotMarkers(fraudSelect);
+    }
+    };
+
+
+    var state = {
+      count: 0,
+      data: undefined,
+    };
+
+    var nextSlide = function () {
+      if (state.count < 5) {
+        state.count = (state.count + 1);
+        // console.log("Slide" + " " + state.count);
+      }
+      else {
+        console.log("You are on the last slide!");
+      }
+    };
+
+    var prevSlide = function() {
+      if (state.count > 0) {
+        state.count = (state.count - 1);
+        // console.log("Slide" + " " + state.count);
+      }
+      else {
+        console.log("You are on the first slide!");
+      }
+    };
+
+    var saySlideName = function() {
+      var slideDataInfo = state.count;
+      console.log("You are on slide" + " " + [slideDataInfo]);
+    };
+
+    saySlideName();
+
+    // This connects the next button click to your functions
+    // will set the style based on the current state
+    $("#button-next").click(function(event) {
+      nextSlide();
+      saySlideName();
+      changeMap();
+    });
+
+    // This connects the previous button click to your functions
+    // will set the style based on the current state
+    $("#button-previous").click(function(event) {
+      prevSlide();
+      saySlideName();
+      changeMap();
+    });
+
+
+
 });
