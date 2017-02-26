@@ -17,22 +17,37 @@ $('#map').css('background-color', "#FEEBE2");
 // TRYING TO ADD THE OUTLINES OF POLICE SERVICE AREAS USING .GeoJSON FROM OPENDATAPHILLY
 // NO SUCCESS SO FAR
 
-var phlPoliceAreas = "https://services.arcgis.com/fLeGjb7u4uXqeF9q/arcgis/rest/services/Boundaries_District/FeatureServer/0?f=pjson";
-var featureGroup;
-var tempData;
-
-$(document).ready(function() {
-  $.ajax(phlPoliceAreas).done(function(data) {
-    var parsedData = JSON.parse(data);
-    tempData = parsedData;
-    featureGroup = L.geoJson(parsedData, {
-      style: null,
-      filter: null
-    }).addTo(map);
-    // quite similar to _.each
-    featureGroup.eachLayer(eachFeatureFunction);
-  });
-});
+// var phlPoliceAreas = "https://raw.githubusercontent.com/caseyxbones/midterm/master/Boundaries_PSA.geojson";
+// var featureGroup;
+// var tempData;
+//
+// var myStyle = function(feature) {
+//     switch (feature.type) {
+//         case 'Feature': return {color: "#000000", fill: false, width: 1};
+//     }
+//   return {};
+// };
+//
+// var eachFeatureFunction = function(layer) {
+//   layer.on('click', function (event) {
+//     var psaNumber = (layer.feature.properties.PSA_NUM);
+//     $(".psa-number").text(layer.feature.properties.PSA_NUM);
+//     // showResults();
+//   });
+// };
+//
+// $(document).ready(function() {
+//   $.ajax(phlPoliceAreas).done(function(data) {
+//     var parsedData = JSON.parse(data);
+//     tempData = parsedData;
+//     featureGroup = L.geoJson(parsedData, {
+//       style: myStyle,
+//       filter: null
+//     }).addTo(map);
+//     // quite similar to _.each
+//     featureGroup.eachLayer(eachFeatureFunction);
+//   });
+// });
 
 
 
@@ -109,7 +124,7 @@ $.ajax({
     // console.log(selectCrimes);                                                    // This is just a different way to do what I did above to get all the text_general_code options
 
     var selectYears = _.uniq(_.pluck(crimeFilter, 'year'));                         // Adapted Aaron's code to look at the years for the data, using the key I created earlier
-    console.log(selectYears);
+    // console.log(selectYears);
 
     var fraud2016 = _.filter(fraudEvents, function(fraudObject){
           return(fraudObject.year == "2016");
