@@ -8,10 +8,10 @@
   </head>
   <body>
     <!--left panel-->
-    <div style="position: absolute; left: 15px; width: 350px; top: 0; bottom: 0;">
+    <div style="position: absolute; left: 15px; width: 25%; top: 0; bottom: 0; background-color: '#777777'";>
       <div id="intro">
 
-        <center><h1 id = "page_title">Mapping Crime in Philadelphia</h1></center>
+        <center><h1 id="page_title">Mapping Crime in Philadelphia</h1></center>
 
         <p id="main" class="body_text">
           The city of Philadelphia provides data on Part 1 and Part 2 Crime Incidents through OpenDataPhilly.org.
@@ -33,11 +33,28 @@
         <button id="button-previous"> <<< </button>
         <button id="button-next"> >>> </button>
       </div>
-      
+
 
     </div>
     <!--map-->
-    <div id="map" style="background-color: #777777; position: absolute; right: 0; left: 400px; top: 0; bottom: 0;"></div>
+    <div id="map" style="background-color: #777777; position: absolute;  right: 0; left: 400px; top: 0; bottom: 0;"></div>
+
+    <div class='my-legend'>
+      <div id='legend_box'>
+        <div class='legend-title'>Crime Incident Legend</div>
+        <div class='legend-scale'>
+          <ul class='legend-labels'>
+            <li><span id="fraud_icon" style='background:#000000;'></span>Fraud</li>
+            <li><span id="theft_icon" style='background:#000000;'></span>Theft</li>
+          </ul>
+        </div>
+    </div>
+  </div>
+  </div>
+
+
+
+
 
     <!--javascript imports-->
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>

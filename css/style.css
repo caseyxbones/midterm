@@ -1,10 +1,18 @@
-/*body {
-    padding: 0;
-    overflow: hidden;
-    font-family: helvetica, arial, sans-serif;
-}*/
+.heading {
+    font-family: monospace;
+    font-size: 2em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.body_text {
+    font-family: monospace;
+    color: #000000;
+}
 
 .map {
+    z-index: -10;
+        /* This will keep the map below the legend */
     position: absolute;
     right: 0px;
     left: 340px;
@@ -12,55 +20,115 @@
     top: 0;
 }
 
-.sidebar {
-    position: absolute;
-    left: 10px;
-    width: 340px;
-    top: 0;
-    bottom: 0;
-    overflow-y: auto;
-    padding: 20px;
-}
-
-.heading {
-  font-family: monospace;
-  font-size: 2em;
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.body_text {
-  font-family: monospace;
-  color: #000000;
-}
-
-
 #buttons{
-  position: fixed;
-  top: 450px;
-  left: 120px;
+    position: fixed;
+    top: 450px;
+    left: 120px;
 }
 
 #page_title{
-  font-family: monospace;
+    font-family: monospace;
+}
+
+#intro {
+    width: 360px;
 }
 
 /*
 The follwoing button style was adapted from the style code found here:
 http://codepen.io/jjhesk/pen/EfobD
 */
+
 button {
-  background-color: #777777;
-  border: none;
-  border-radius: 5px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.5);
-  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.75);
-  color: white;
-  cursor: pointer;;
-  font-family: monospace;
-  margin:10px 4px;
-  padding: 7px 20px;
+    background-color: #000000;
+    border: none;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.25);
+    color: white;
+    cursor: pointer;;
+    font-family: monospace;
+    margin:10px 4px;
+    padding: 7px 20px;
+}
+
+/* The following legend styling was adapted from code found here:
+https://tilemill-project.github.io/tilemill/docs/guides/advanced-legends/*/
+
+.my-legend {
+    position:relative;
+        /* This will allow me to keep the legend box 10px from the right edge of the window even if it's resized */
+    z-index: 1000;
+    padding-top: 10px;
+    margin-left: 90%;
+}
+
+.my-legend .legend-title {
+    text-align: left;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 90%;
+    margin-left: 10px;
+    padding-top: 4px;
+    font-family: monospace;
+}
+
+.my-legend .legend-scale ul {
+    margin: 0;
+    margin-bottom: 5px;
+    padding: 0;
+    list-style: none;
+    margin-left: 3px;
+}
+
+.my-legend .legend-scale ul li {
+    font-size: 80%;
+    list-style: none;
+    margin-left: 0;
+    margin-bottom: 7px;
+}
+
+
+.my-legend ul.legend-labels {
+    font-family: monospace;
+}
+
+#fraud_icon {
+    display: block;
+    float: left;
+    height: 9px;
+    width: 9px;
+    margin-right: 5px;
+    margin-left: 10px;
+    border: 2px solid #b1d41e;
+    border-radius: 10px;
+}
+
+#theft_icon {
+    display: block;
+    float: left;
+    height: 9px;
+    width: 9px;
+    margin-right: 5px;
+    margin-left: 10px;
+    border: 2px solid #ef008c;
+    border-radius: 10px;
+}
+
+#legend_box{
+    background-color: #777777;
+    position: absolute;
+        /* because the parent div .my-legend is set to position: relative, this will keep the legend box
+        in the right part of the screen even if the window is resized */
+    right: 10px;
+        /* this will make sure there are always 10px betweet the right edge of the legend_box
+        and the right edge of the window, even if the window is resized */
+    z-index: 999;
+        /* This will keep the legend just above the map*/
+    width: 170px;
+    height: 65px;
+    border-radius: 5px;
 }

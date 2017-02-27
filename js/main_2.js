@@ -5,13 +5,13 @@
 $("#button-previous").hide();                           // This is here to make my button click events work properly later on
 
 var magentaIcon = L.icon({                              // custom map icon 1
-    iconUrl: 'images/magenta_dot.png',
+    iconUrl: 'images/magenta_ring.png',
     shadowUrl: null,
     iconSize:     [8,8], // size of the icon
 });
 
 var greenIcon = L.icon({                              // custom map icon 2
-    iconUrl: 'images/green_dot.png',
+    iconUrl: 'images/green_ring.png',
     shadowUrl: null,
     iconSize:     [8,8], // size of the icon
 });
