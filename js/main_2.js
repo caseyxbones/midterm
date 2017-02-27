@@ -187,25 +187,30 @@ $.ajax({
     var theftSelect = makeMarkersPink(theft2016);
     var fraudMarkers = makeMarkersGreen(fraudEvents);
     var fraudSelect = makeMarkersGreen(fraud2016);
+    var allMarkers = [theftMarkers, theftSelect, fraudMarkers, fraudSelect];
 
     // plotMarkers(allMarkers);
 
-    var removeMarkers = function(markersAll) {
+    var removeMarkers = function(markersAll) {                                          // this function will remove markers for individual filters
         _.each(markersAll, function (individualMarker){
           map.removeLayer(individualMarker);
         });
     };
 
+    var clearMap = function () {                                                        // this function will clear the map, called in button clicks
+        removeMarkers(theftMarkers);
+        removeMarkers(fraudMarkers);
+        removeMarkers(theftSelect);
+        removeMarkers(fraudSelect);
+    };
 
-    var changeMap = function () {
+    var changeMap = function () {                                                     // this will change the page contents dependiong on the state count, called in button clicks
       if (state.count < 1) {
-            // removeMarkers(allMarkers);
-            removeMarkers(theftMarkers);
-            removeMarkers(fraudMarkers);
+            $("#page_title").text("Mapping Crime in Philadelphia");
+            $("#main").text("The city of Philadelphia provides data on Part 1 and Part 2 Crime Incidents through OpenDataPhilly.org. Part 1 & Part 2 Crime Incidents from the Police Department's INCT system with generalized UCR codes and addresses rounded to the hundred block. These counts may not coincide exactly with data that is submitted to the Uniformed Crime Reporting (UCR) system.");
+            $("#main2").show();
+            $("#main3").show();
       } else if (state.count === 1) {
-            // removeMarkers(allMarkers);
-            removeMarkers(theftMarkers);
-            removeMarkers(fraudMarkers);
             $("#page_title").text("All Fraud & Theft from 2006 to Present");
             $("#main").text("The map to the right shows all of the Fraud and Theft incidents with geographic information for the city of Philadelphia from 2006 to present. To get more information on a specific incident, click on its marker!");
             $("#main2").hide();
@@ -213,40 +218,30 @@ $.ajax({
             plotMarkers(theftMarkers);
             plotMarkers(fraudMarkers);
       } else  if (state.count === 2) {
-                // removeMarkers(allMarkers);
-                // removeMarkers(theftMarkers);
-                removeMarkers(fraudMarkers);
-                $("#page_title").text("All  Theft: 2006 to Present");
-                $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
-                $("#main2").hide();
-                $("#main3").hide();
-            // plotMarkers(theftMarkers);
+            $("#page_title").text("All  Theft: 2006 to Present");
+            $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
+            $("#main2").hide();
+            $("#main3").hide();
+            plotMarkers(theftMarkers);
       } else  if (state.count === 3) {
-                removeMarkers(theftMarkers);
-                removeMarkers(fraudMarkers);
-                $("#page_title").text("Theft in 2016");
-                $("#main").text("These are all of the thefts geocoded by the Philadelphia Police Department in 2016.");
-                $("#main2").show();
-                $("#main2").text("The scarcity of data points suggests that the data set might be incomplete. Either that, or Philadelphia is much safer than all the Penn Security e-mails we get each semester would suggest.");
-                $("#main3").hide();
+            $("#page_title").text("Theft in 2016");
+            $("#main").text("These are all of the thefts geocoded by the Philadelphia Police Department in 2016.");
+            $("#main2").show();
+            $("#main2").text("The scarcity of data points suggests that the data set might be incomplete. Either that, or Philadelphia is much safer than all the Penn Security e-mails we get each semester would suggest.");
+            $("#main3").hide();
             plotMarkers(theftSelect);
       } else  if (state.count === 4) {
-                removeMarkers(fraudMarkers);
-                removeMarkers(theftSelect);
-                $("#page_title").text("All Fraud: 2006 to Present");
-                $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
-                $("#main2").hide();
-                $("#main3").hide();
+            $("#page_title").text("All Fraud: 2006 to Present");
+            $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
+            $("#main2").hide();
+            $("#main3").hide();
             plotMarkers(fraudMarkers);
       } else  if (state.count === 5) {
-                // removeMarkers(allMarkers);
-                removeMarkers(theftMarkers);
-                removeMarkers(fraudMarkers);
-                $("#page_title").text("Fraud in 2016");
-                $("#main").text("These are all of the thefts geocoded by the Philadelphia Police Department in 2016.");
-                $("#main2").show();
-                $("#main2").text("Again, the scarcity of data points suggests that the data set might be incomplete.");
-                $("#main3").hide();
+            $("#page_title").text("Fraud in 2016");
+            $("#main").text("These are all of the thefts geocoded by the Philadelphia Police Department in 2016.");
+            $("#main2").show();
+            $("#main2").text("Again, the scarcity of data points suggests that the data set might be incomplete.");
+            $("#main3").hide();
             plotMarkers(fraudSelect);
     }
     };
@@ -294,15 +289,18 @@ $.ajax({
             $("#button-previous").show();
             nextSlide();
             saySlideName();
+            clearMap();
             changeMap();
       } else if (state.count === 4) {
             nextSlide();
             saySlideName();
             $("#button-next").hide();
+            clearMap();
             changeMap();
       } else {
             nextSlide();
             saySlideName();
+            clearMap();
             changeMap();
       }
     });
@@ -314,15 +312,18 @@ $.ajax({
             prevSlide();
             saySlideName();
             $("#button-next").show();
+            clearMap();
             changeMap();
       } else if (state.count === 1) {
             prevSlide();
             saySlideName();
             $("#button-previous").hide();
+            clearMap();
             changeMap();
       } else {
             prevSlide();
             saySlideName();
+            clearMap();
             changeMap();
       }
     });
