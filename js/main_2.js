@@ -1,20 +1,32 @@
+////////////////////////////////////////////////////////////////////////////////////////
+/////////////            THIS IS BASIC MAP AND ICON SETUP STUFF            /////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
+$("#button-previous").hide();                           // This is here to make my button click events work properly later on
 
-$('#map').css('background-color', "#FEEBE2");
-$("#button-previous").hide();
+var magentaIcon = L.icon({                              // custom map icon 1
+    iconUrl: 'images/magenta_dot.png',
+    shadowUrl: null,
+    iconSize:     [8,8], // size of the icon
+});
 
+var greenIcon = L.icon({                              // custom map icon 2
+    iconUrl: 'images/green_dot.png',
+    shadowUrl: null,
+    iconSize:     [8,8], // size of the icon
+});
 
-  var map = L.map('map', {
+  var map = L.map('map', {                            // using a set of CartoDB tiles instead of Stamen tiles
     center: [39.986354, -75.097443],
     zoom: 11
   });
-  var Stamen_Terrain = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
-    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    subdomains: 'abcd',
-    minZoom: 0,
-    maxZoom: 20,
-    ext: 'png'
-  }).addTo(map);
+
+  var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+	subdomains: 'abcd',
+	maxZoom: 19
+}).addTo(map);
+
 
 // TRYING TO ADD THE OUTLINES OF POLICE SERVICE AREAS USING .GeoJSON FROM OPENDATAPHILLY
 // NO SUCCESS SO FAR
@@ -142,15 +154,25 @@ $.ajax({
 /////////////  HERE IS WHERE I CREATE MARKERS AND PLOT THEM ON EACH SLIDE  /////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-    // console.log(crimeFilter[0].shape.coordinates[0]);                             // This is the second coordinate for each crimeObject
-    // console.log(crimeFilter[0].shape.coordinates[1]);                             // This is the first coordinate for each crimeObject
-    var makeMarkers =  function (crimeFilter) {
-        var markersTemp = _.map(crimeFilter, function(crimeObject) {
-          return L.marker([crimeObject.shape.coordinates[1], crimeObject.shape.coordinates[0]])
+    // console.log(crimeFilter[0].shape.coordinates[0]);                                  // This is the second coordinate for each crimeObject
+    // console.log(crimeFilter[0].shape.coordinates[1]);                                  // This is the first coordinate for each crimeObject
+
+    var makeMarkersPink =  function (crimeFilter) {                                       // markers using the pink custom icon
+        var markersTempPink = _.map(crimeFilter, function(crimeObject) {
+          return L.marker([crimeObject.shape.coordinates[1], crimeObject.shape.coordinates[0]], {icon: magentaIcon})
           .bindPopup(crimeObject.text_general_code + " reported at " + crimeObject.location_block + " on " + crimeObject.dispatch_date);
         }
       );
-      return markersTemp;
+      return markersTempPink;
+    };
+
+    var makeMarkersGreen =  function (crimeFilter) {                                      // markers using the green custom icon
+        var markersTempGreen = _.map(crimeFilter, function(crimeObject) {
+          return L.marker([crimeObject.shape.coordinates[1], crimeObject.shape.coordinates[0]], {icon: greenIcon})
+          .bindPopup(crimeObject.text_general_code + " reported at " + crimeObject.location_block + " on " + crimeObject.dispatch_date);
+        }
+      );
+      return markersTempGreen;
     };
 
     var plotMarkers = function(markersAll) {
@@ -160,11 +182,11 @@ $.ajax({
         );
     };
 
-    var allMarkers = makeMarkers(crimeFilter);
-    var theftMarkers = makeMarkers(theftEvents);
-    var theftSelect = makeMarkers(theft2016);
-    var fraudMarkers = makeMarkers(fraudEvents);
-    var fraudSelect = makeMarkers(fraud2016);
+    // var allMarkers = makeMarkers(crimeFilter);
+    var theftMarkers = makeMarkersPink(theftEvents);
+    var theftSelect = makeMarkersPink(theft2016);
+    var fraudMarkers = makeMarkersGreen(fraudEvents);
+    var fraudSelect = makeMarkersGreen(fraud2016);
 
     // plotMarkers(allMarkers);
 
@@ -177,24 +199,28 @@ $.ajax({
 
     var changeMap = function () {
       if (state.count < 1) {
-            removeMarkers(allMarkers);
+            // removeMarkers(allMarkers);
+            removeMarkers(theftMarkers);
+            removeMarkers(fraudMarkers);
       } else if (state.count === 1) {
-                removeMarkers(allMarkers);
-                removeMarkers(theftMarkers);
+            // removeMarkers(allMarkers);
+            removeMarkers(theftMarkers);
+            removeMarkers(fraudMarkers);
             $("#page_title").text("All Fraud & Theft from 2006 to Present");
             $("#main").text("The map to the right shows all of the Fraud and Theft incidents with geographic information for the city of Philadelphia from 2006 to present. To get more information on a specific incident, click on its marker!");
             $("#main2").hide();
             $("#main3").hide();
-            plotMarkers(allMarkers);
+            plotMarkers(theftMarkers);
+            plotMarkers(fraudMarkers);
       } else  if (state.count === 2) {
-                removeMarkers(allMarkers);
-                removeMarkers(theftMarkers);
+                // removeMarkers(allMarkers);
+                // removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
                 $("#page_title").text("All  Theft: 2006 to Present");
                 $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
                 $("#main2").hide();
                 $("#main3").hide();
-            plotMarkers(theftMarkers);
+            // plotMarkers(theftMarkers);
       } else  if (state.count === 3) {
                 removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
@@ -205,15 +231,15 @@ $.ajax({
                 $("#main3").hide();
             plotMarkers(theftSelect);
       } else  if (state.count === 4) {
-                removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
+                removeMarkers(theftSelect);
                 $("#page_title").text("All Fraud: 2006 to Present");
                 $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
                 $("#main2").hide();
                 $("#main3").hide();
             plotMarkers(fraudMarkers);
       } else  if (state.count === 5) {
-                removeMarkers(allMarkers);
+                // removeMarkers(allMarkers);
                 removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
                 $("#page_title").text("Fraud in 2016");
@@ -226,6 +252,9 @@ $.ajax({
     };
 
 
+////////////////////////////////////////////////////////////////////////////////////////
+/////////////           THIS IS THE PART THAT ACTUALLY DOES STUFF          /////////////
+////////////////////////////////////////////////////////////////////////////////////////
     var state = {
       count: 0,
       data: undefined,
@@ -298,6 +327,7 @@ $.ajax({
       }
     });
 
-
+// ALMOST ALL OF THIS HAS BEEN INSIDE A .done FUNCTION.
+// THERE HAS TO BE A BETTER WAY TO DO THIS, NO?
 
 });
