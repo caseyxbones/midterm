@@ -4,13 +4,36 @@
     <!--stylesheet imports-->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <link href="https://fastcdn.org/Leaflet.awesome-markers/2.0.1/leaflet.awesome-markers.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css"/>
   </head>
   <body>
     <!--left panel-->
-    <div style="position: absolute; left: 0px; width: 400px; top: 0; bottom: 0;">
-      <h1> Visualizing Select Crime Data in Philadelphia </h1>
-      <button id="button-next">Next</button>
-      <button id="button-previous">previous</button>
+    <div style="position: absolute; left: 15px; width: 350px; top: 0; bottom: 0;">
+      <div id="intro">
+
+        <center><h1 id = "page_title">Mapping Crime in Philadelphia</h1></center>
+
+        <p id="main" class="body_text">
+          The city of Philadelphia provides data on Part 1 and Part 2 Crime Incidents through OpenDataPhilly.org.
+          Part 1 & Part 2 Crime Incidents from the Police Department's INCT system with generalized UCR codes and addresses rounded to the hundred block.
+          These counts may not coincide exactly with data that is submitted to the Uniformed Crime Reporting (UCR) system.
+        </p>
+
+        <p id="main2" class="body_text">
+          This application shows all of the crimes cateorized as Thefts or Fraud fromk 2006 to present, and breaks the data out in separate slides
+          so that you can see only the events from 2016.
+        </p>
+
+        <p id="main3" class="body_text">
+          Each point on the map is interactive, so feel free to clik on a marker to get more specific information about the incident being mapped.
+        </p>
+      </div>
+
+      <div id="buttons">
+        <button id="button-previous"> <<< </button>
+        <button id="button-next"> >>> </button>
+      </div>
+      
 
     </div>
     <!--map-->

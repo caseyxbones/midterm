@@ -1,6 +1,8 @@
 
 
 $('#map').css('background-color', "#FEEBE2");
+$("#button-previous").hide();
+
 
   var map = L.map('map', {
     center: [39.986354, -75.097443],
@@ -172,30 +174,53 @@ $.ajax({
         });
     };
 
+
     var changeMap = function () {
-      if (state.count === 0) {
+      if (state.count < 1) {
             removeMarkers(allMarkers);
       } else if (state.count === 1) {
                 removeMarkers(allMarkers);
                 removeMarkers(theftMarkers);
+            $("#page_title").text("All Fraud & Theft from 2006 to Present");
+            $("#main").text("The map to the right shows all of the Fraud and Theft incidents with geographic information for the city of Philadelphia from 2006 to present. To get more information on a specific incident, click on its marker!");
+            $("#main2").hide();
+            $("#main3").hide();
             plotMarkers(allMarkers);
       } else  if (state.count === 2) {
                 removeMarkers(allMarkers);
                 removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
+                $("#page_title").text("All  Theft: 2006 to Present");
+                $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
+                $("#main2").hide();
+                $("#main3").hide();
             plotMarkers(theftMarkers);
       } else  if (state.count === 3) {
                 removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
+                $("#page_title").text("Theft in 2016");
+                $("#main").text("These are all of the thefts geocoded by the Philadelphia Police Department in 2016.");
+                $("#main2").show();
+                $("#main2").text("The scarcity of data points suggests that the data set might be incomplete. Either that, or Philadelphia is much safer than all the Penn Security e-mails we get each semester would suggest.");
+                $("#main3").hide();
             plotMarkers(theftSelect);
       } else  if (state.count === 4) {
                 removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
+                $("#page_title").text("All Fraud: 2006 to Present");
+                $("#main").text( "This is a subset of the full dataset, showing only thefts from 2006 to present.");
+                $("#main2").hide();
+                $("#main3").hide();
             plotMarkers(fraudMarkers);
       } else  if (state.count === 5) {
                 removeMarkers(allMarkers);
                 removeMarkers(theftMarkers);
                 removeMarkers(fraudMarkers);
+                $("#page_title").text("Fraud in 2016");
+                $("#main").text("These are all of the thefts geocoded by the Philadelphia Police Department in 2016.");
+                $("#main2").show();
+                $("#main2").text("Again, the scarcity of data points suggests that the data set might be incomplete.");
+                $("#main3").hide();
             plotMarkers(fraudSelect);
     }
     };
@@ -228,7 +253,7 @@ $.ajax({
 
     var saySlideName = function() {
       var slideDataInfo = state.count;
-      console.log("You are on slide" + " " + [slideDataInfo]);
+      console.log("You are on slide" + " " + [state.count]);
     };
 
     saySlideName();
@@ -236,17 +261,41 @@ $.ajax({
     // This connects the next button click to your functions
     // will set the style based on the current state
     $("#button-next").click(function(event) {
-      nextSlide();
-      saySlideName();
-      changeMap();
+      if (state.count === 0 ) {
+            $("#button-previous").show();
+            nextSlide();
+            saySlideName();
+            changeMap();
+      } else if (state.count === 4) {
+            nextSlide();
+            saySlideName();
+            $("#button-next").hide();
+            changeMap();
+      } else {
+            nextSlide();
+            saySlideName();
+            changeMap();
+      }
     });
 
     // This connects the previous button click to your functions
     // will set the style based on the current state
     $("#button-previous").click(function(event) {
-      prevSlide();
-      saySlideName();
-      changeMap();
+      if (state.count === 5) {
+            prevSlide();
+            saySlideName();
+            $("#button-next").show();
+            changeMap();
+      } else if (state.count === 1) {
+            prevSlide();
+            saySlideName();
+            $("#button-previous").hide();
+            changeMap();
+      } else {
+            prevSlide();
+            saySlideName();
+            changeMap();
+      }
     });
 
 
