@@ -10,7 +10,7 @@ var magentaIcon = L.icon({                              // custom map icon 1
     iconSize:     [8,8], // size of the icon
 });
 
-var greenIcon = L.icon({                              // custom map icon 2
+var greenIcon = L.icon({                               // custom map icon 2
     iconUrl: 'images/green_ring.png',
     shadowUrl: null,
     iconSize:     [8,8], // size of the icon
@@ -31,37 +31,40 @@ var greenIcon = L.icon({                              // custom map icon 2
 // TRYING TO ADD THE OUTLINES OF POLICE SERVICE AREAS USING .GeoJSON FROM OPENDATAPHILLY
 // NO SUCCESS SO FAR
 
-// var phlPoliceAreas = "https://raw.githubusercontent.com/caseyxbones/midterm/master/Boundaries_PSA.geojson";
-// var featureGroup;
-// var tempData;
-//
+var phlPoliceAreas = "https://raw.githubusercontent.com/caseyxbones/midterm/master/Boundaries_PSA.geojson";
+var featureGroup;
+var tempData;
+
 // var myStyle = function(feature) {
 //     switch (feature.type) {
-//         case 'Feature': return {color: "#000000", fill: false, width: 1};
+//         case 'Feature': return {color: "#ffffff", fill: false, width: 10};
 //     }
 //   return {};
 // };
-//
-// var eachFeatureFunction = function(layer) {
-//   layer.on('click', function (event) {
-//     var psaNumber = (layer.feature.properties.PSA_NUM);
-//     $(".psa-number").text(layer.feature.properties.PSA_NUM);
-//     // showResults();
-//   });
-// };
-//
-// $(document).ready(function() {
-//   $.ajax(phlPoliceAreas).done(function(data) {
-//     var parsedData = JSON.parse(data);
-//     tempData = parsedData;
-//     featureGroup = L.geoJson(parsedData, {
-//       style: myStyle,
-//       filter: null
-//     }).addTo(map);
-//     // quite similar to _.each
-//     featureGroup.eachLayer(eachFeatureFunction);
-//   });
-// });
+
+lineStyle = {style: function(f){
+  return {'weight': 1, fill: false, color: "#ffffff", dashArray: '5', opacity: 0.5};
+}};
+
+
+
+var eachFeatureFunction = function(layer) {
+  layer.on('click', function (event) {
+    var psaNumber = (layer.feature.properties.PSA_NUM);
+    $(".psa-number").text(layer.feature.properties.PSA_NUM);
+    showResults();
+  });
+};
+
+$(document).ready(function() {
+  $.ajax(phlPoliceAreas).done(function(data) {
+    var parsedData = JSON.parse(data);
+    tempData = parsedData;
+    featureGroup = L.geoJson(parsedData, lineStyle).addTo(map);
+    // quite similar to _.each
+    featureGroup.eachLayer(eachFeatureFunction);
+  });
+});
 
 
 
@@ -69,11 +72,13 @@ var greenIcon = L.icon({                              // custom map icon 2
 /////////////   HERE IS WHERE I BRING DOWN THE CRIME DATA THROUGH AN API   /////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
+
 $.ajax({
     url: "https://data.phila.gov/resource/sspu-uyfa.json",
     type: "GET",
     data: {
-      "$query" : "SELECT * WHERE shape is not null",                        // This automatically gets rid of any data without a shape and coordinates
+      // "$query" : "SELECT * WHERE shape is not null",
+      "$query" : "SELECT * WHERE dispatch_date LIKE '2016%' AND shape is not null",                    // This automatically gets rid of any data without a shape and coordinates AND gives us ONLY data for 2016
       "$$app_token" : "nZtsnVJLQrElo9WkVcHn005wJ"
     }
 }).done(function(data) {                                                    // anything that uses crimeData has to happen inside this done function or after a click event
@@ -118,6 +123,7 @@ $.ajax({
     // console.log(crimeData);
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //////// HERE IS WHERE IM GONNA SET UP VARIOUS FILTERS FOR POINTS I WANT TO MAP ////////
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -157,8 +163,9 @@ $.ajax({
     // console.log(crimeFilter[0].shape.coordinates[0]);                                  // This is the second coordinate for each crimeObject
     // console.log(crimeFilter[0].shape.coordinates[1]);                                  // This is the first coordinate for each crimeObject
 
-    var makeMarkersPink =  function (crimeFilter) {                                       // markers using the pink custom icon
-        var markersTempPink = _.map(crimeFilter, function(crimeObject) {
+
+    var makeMarkersPink =  function (crimeData) {                                       // markers using the pink custom icon
+        var markersTempPink = _.map(crimeData, function(crimeObject) {
           return L.marker([crimeObject.shape.coordinates[1], crimeObject.shape.coordinates[0]], {icon: magentaIcon})
           .bindPopup(crimeObject.text_general_code + " reported at " + crimeObject.location_block + " on " + crimeObject.dispatch_date);
         }
@@ -166,8 +173,8 @@ $.ajax({
       return markersTempPink;
     };
 
-    var makeMarkersGreen =  function (crimeFilter) {                                      // markers using the green custom icon
-        var markersTempGreen = _.map(crimeFilter, function(crimeObject) {
+    var makeMarkersGreen =  function (crimeData) {                                      // markers using the green custom icon
+        var markersTempGreen = _.map(crimeData, function(crimeObject) {
           return L.marker([crimeObject.shape.coordinates[1], crimeObject.shape.coordinates[0]], {icon: greenIcon})
           .bindPopup(crimeObject.text_general_code + " reported at " + crimeObject.location_block + " on " + crimeObject.dispatch_date);
         }
@@ -183,6 +190,7 @@ $.ajax({
     };
 
     // var allMarkers = makeMarkers(crimeFilter);
+    var all2016markers = makeMarkersPink(crimeData);
     var theftMarkers = makeMarkersPink(theftEvents);
     var theftSelect = makeMarkersPink(theft2016);
     var fraudMarkers = makeMarkersGreen(fraudEvents);
@@ -202,6 +210,7 @@ $.ajax({
         removeMarkers(fraudMarkers);
         removeMarkers(theftSelect);
         removeMarkers(fraudSelect);
+        removeMarkers(all2016markers);
     };
 
     var changeMap = function () {                                                     // this will change the page contents dependiong on the state count, called in button clicks
@@ -210,6 +219,7 @@ $.ajax({
             $("#main").text("The city of Philadelphia provides data on Part 1 and Part 2 Crime Incidents through OpenDataPhilly.org. Part 1 & Part 2 Crime Incidents from the Police Department's INCT system with generalized UCR codes and addresses rounded to the hundred block. These counts may not coincide exactly with data that is submitted to the Uniformed Crime Reporting (UCR) system.");
             $("#main2").show();
             $("#main3").show();
+            plotMarkers(all2016markers);
       } else if (state.count === 1) {
             $("#page_title").text("All Fraud & Theft from 2006 to Present");
             $("#main").text("The map to the right shows all of the Fraud and Theft incidents with geographic information for the city of Philadelphia from 2006 to present. To get more information on a specific incident, click on its marker!");
@@ -250,6 +260,8 @@ $.ajax({
 ////////////////////////////////////////////////////////////////////////////////////////
 /////////////           THIS IS THE PART THAT ACTUALLY DOES STUFF          /////////////
 ////////////////////////////////////////////////////////////////////////////////////////
+    // plotMarkers(all2016markers);
+
     var state = {
       count: 0,
       data: undefined,
